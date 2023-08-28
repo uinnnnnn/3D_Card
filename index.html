@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Card with Camera</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // 在這裡編寫 Three.js 的程式碼
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 創建3D名片模型，與之前一樣
+        const loader = new THREE.TextureLoader();
+        const cardTexture = loader.load('path_to_your_card_texture.jpg');
+        const cardGeometry = new THREE.PlaneGeometry(3, 2);
+        const cardMaterial = new THREE.MeshBasicMaterial({ map: cardTexture });
+        const card = new THREE.Mesh(cardGeometry, cardMaterial);
+        scene.add(card);
+
+        // 存放視訊流的材料
+        const videoMaterial = new THREE.MeshBasicMaterial({ map: new THREE.VideoTexture() });
+
+        // 創建視訊平面
+        const videoGeometry = new THREE.PlaneGeometry(4, 3);
+        const videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
+        videoMesh.position.z = -5;  // 放在名片前方一些，讓名片在前面
+        scene.add(videoMesh);
+
+        // 啟動視訊捕獲
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                const videoTexture = videoMaterial.map;
+                videoTexture.image = stream;
+                videoTexture.minFilter = THREE.LinearFilter;
+                videoTexture.magFilter = THREE.LinearFilter;
+                videoTexture.format = THREE.RGBFormat;
+                videoTexture.needsUpdate = true;
+
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function (error) {
+                console.error('獲取相機視訊失敗:', error);
+            });
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        };
+
+        animate();
+
+    </script>
+</body>
+
+</html>
