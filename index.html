@@ -1,70 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Card with Camera</title>
+    <meta charset="utf-8">
+    <title>視訊展示卡片</title>
     <style>
         body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            overflow: hidden;
+        }
+
+        #cardContainer {
+            width: 300px;
+            height: 200px;
+            position: relative;
+        }
+
+        #cardImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1s;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        #startButton {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <div id="cardContainer">
+        <img id="cardImage" src="" alt="Card">
+        <div id="overlay">
+            <button id="startButton">開啟</button>
+        </div>
+    </div>
+
     <script>
-        // 在這裡編寫 Three.js 的程式碼
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        const cardContainer = document.getElementById('cardContainer');
+        const cardImage = document.getElementById('cardImage');
+        const overlay = document.getElementById('overlay');
+        const startButton = document.getElementById('startButton');
 
-        // 創建3D名片模型，與之前一樣
-        const loader = new THREE.TextureLoader();
-        const cardTexture = loader.load('path_to_your_card_texture.jpg');
-        const cardGeometry = new THREE.PlaneGeometry(3, 2);
-        const cardMaterial = new THREE.MeshBasicMaterial({ map: cardTexture });
-        const card = new THREE.Mesh(cardGeometry, cardMaterial);
-        scene.add(card);
+        startButton.addEventListener('click', () => {
+            // 假設這裡觸發了手勢，開始讀取視訊鏡頭
 
-        // 存放視訊流的材料
-        const videoMaterial = new THREE.MeshBasicMaterial({ map: new THREE.VideoTexture() });
+            // 假設這裡檢測到卡片，並取得要展示的圖片路徑
+            const imageUrl = 'path_to_your_image.jpg';
 
-        // 創建視訊平面
-        const videoGeometry = new THREE.PlaneGeometry(4, 3);
-        const videoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
-        videoMesh.position.z = -5;  // 放在名片前方一些，讓名片在前面
-        scene.add(videoMesh);
+            // 更新卡片圖片
+            cardImage.src = imageUrl;
 
-        // 啟動視訊捕獲
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-                const videoTexture = videoMaterial.map;
-                videoTexture.image = stream;
-                videoTexture.minFilter = THREE.LinearFilter;
-                videoTexture.magFilter = THREE.LinearFilter;
-                videoTexture.format = THREE.RGBFormat;
-                videoTexture.needsUpdate = true;
-
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(function (error) {
-                console.error('獲取相機視訊失敗:', error);
-            });
-
-        const animate = () => {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        };
-
-        animate();
-
+            // 顯示卡片和動畫效果
+            overlay.style.opacity = '1';
+            cardImage.style.transform = 'rotateY(360deg)';
+        });
     </script>
 </body>
 
