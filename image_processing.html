@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>3D視訊效果</title>
+</head>
+
+<body>
+    <script type="module">
+        import * as THREE from 'https://threejs.org/build/three.module.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        camera.position.z = 5;
+
+        // 使用 getUserMedia 取得視訊鏡頭影像
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+
+                const videoTexture = new THREE.VideoTexture(video);
+                const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+                cube.material = videoMaterial;
+            })
+            .catch(function (error) {
+                console.error('無法獲取視訊鏡頭：', error);
+            });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 旋轉3D物體
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>
