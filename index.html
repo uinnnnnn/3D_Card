@@ -58,6 +58,7 @@
 <body>
     <div id="cardContainer">
         <img id="cardImage" src="./card.png" alt="./card.png">
+        <video id="inputVideo" autoplay muted playsinline></video>
         <div id="overlay">
             <button id="startButton">開啟</button>
         </div>
@@ -69,18 +70,22 @@
         const overlay = document.getElementById('overlay');
         const startButton = document.getElementById('startButton');
 
-        startButton.addEventListener('click', () => {
-            // 假設這裡觸發了手勢，開始讀取視訊鏡頭
+        startButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
 
-            // 假設這裡檢測到卡片，並取得要展示的圖片路徑
-            const imageUrl = './card.png';
+                // 將視訊流指派給video元素
+                const videoElement = document.createElement('video');
+                videoElement.srcObject = stream;
+                videoElement.autoplay = true;
+                cardContainer.appendChild(videoElement);
 
-            // 更新卡片圖片
-            cardImage.src = imageUrl;
-
-            // 顯示卡片和動畫效果
-            overlay.style.opacity = '1';
-            cardImage.style.transform = 'rotateY(360deg)';
+                // 隱藏按鈕並顯示視訊畫面
+                overlay.style.display = 'none';
+                cardImage.style.display = 'none';
+            } catch (error) {
+                console.error('無法獲取視訊鏡頭：', error);
+            }
         });
     </script>
 </body>
