@@ -1,55 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>3D視訊效果</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Viewer</title>
+    <style>
+        #video-container {
+            position: relative;
+            width: 640px;
+            height: 480px;
+        }
+
+        #card-overlay {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 200px;
+            height: 300px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+
+        #card-overlay img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
-    <script type="module">
-        import * as THREE from 'https://threejs.org/build/three.module.js';
+    <div id="video-container">
+        <video id="video" autoplay></video>
+        <div id="card-overlay">
+            <img id="card-image" src="" alt="Card Image">
+        </div>
+    </div>
+    <button id="start-button">開啟</button>
+    <script>
+        const video = document.getElementById('video');
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-
-        camera.position.z = 5;
-
-        // 使用 getUserMedia 取得視訊鏡頭影像
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-                const video = document.createElement('video');
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
-                video.play();
-
-                const videoTexture = new THREE.VideoTexture(video);
-                const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-                cube.material = videoMaterial;
-            })
-            .catch(function (error) {
-                console.error('無法獲取視訊鏡頭：', error);
-            });
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // 旋轉3D物體
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-
-            renderer.render(scene, camera);
+            } catch (error) {
+                console.error('無法開啟視訊鏡頭：', error);
+            }
         }
 
-        animate();
+        startCamera();
+
+        const cardOverlay = document.getElementById('card-overlay');
+        const cardImage = document.getElementById('card-image');
+        const startButton = document.getElementById('start-button');
+
+        let isOverlayVisible = false;
+
+        // 在偵測到 "耶" 手勢時顯示卡片圖片
+        function showCardOverlay() {
+            cardOverlay.style.transform = 'translateZ(100px) rotateY(0deg)';
+            isOverlayVisible = true;
+        }
+
+        // 啟動手勢偵測
+        function startGestureDetection() {
+            // 在這裡使用手勢偵測庫來偵測 "耶" 手勢
+            // 當偵測到手勢時，調用 showCardOverlay()
+        }
+
+        startButton.addEventListener('click', startGestureDetection);
+
+
     </script>
 </body>
 
